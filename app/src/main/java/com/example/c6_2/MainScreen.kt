@@ -3,10 +3,12 @@ package com.example.c6_2
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,12 +20,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,11 +46,17 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.launch
 import kotlin.collections.firstOrNull
 import kotlin.collections.forEach
 
 @Composable
 fun MainScreen(modifier: Modifier, location : Location){
+
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    SnackbarHost(hostState = snackbarHostState)
 
     val defaultLocation = remember { mutableStateOf(LatLng(location.latitude, location.longitude)) }
     val customLocation = remember { mutableStateOf(mutableStateListOf<LatLng>()) }
@@ -59,8 +70,8 @@ fun MainScreen(modifier: Modifier, location : Location){
     val polylineColor = remember { mutableStateOf(Color(redLine.value,greenLine.value,blueLine.value)) }
     val polygonColor = remember { mutableStateOf(Color(redIn.value,greenIn.value, blueIn.value)) }
     val polyLineWidth = remember { mutableStateOf(8f) }
-
-
+    val trailMessage = remember { mutableStateOf("") }
+    val clickedLine= remember{mutableStateOf(false)}
     val isItPolyline = remember { mutableStateOf(true) }
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(defaultLocation.value, 12f)
@@ -72,6 +83,7 @@ fun MainScreen(modifier: Modifier, location : Location){
             customGonLocation.value.add(defaultLocation.value)
         }
     }
+    Box(modifier = modifier.fillMaxSize()) {
     Column (
         modifier = modifier.fillMaxHeight()
     ){
@@ -92,15 +104,24 @@ fun MainScreen(modifier: Modifier, location : Location){
                 points = customLocation.value.toList(),
                 clickable = true,
                 color = polylineColor.value,
-                width =  polyLineWidth.value)
+                width =  polyLineWidth.value,
+                onClick = {
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar("${customLocation.value.size-1} Destinations")
+                    }                }
+            )
 
             Polygon(
                 points = customGonLocation.value.toList(),
                 clickable = true,
                 fillColor = polygonColor.value,
                 strokeColor = polylineColor.value,
-                strokeWidth = polyLineWidth.value
-
+                strokeWidth = polyLineWidth.value,
+                onClick = {
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar("Total Points: ${customGonLocation.value.size}")
+                    }
+                }
             )
             customLocation.value.forEach { latlng ->
                 Marker(
@@ -127,7 +148,7 @@ fun MainScreen(modifier: Modifier, location : Location){
                 activeTrackColor = MaterialTheme.colorScheme.secondary,
                 inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
             ),
-            valueRange = 0f..50f
+            valueRange = 8f..50f
         )
         Text(text = polyLineWidth.value.toString())
 
@@ -233,10 +254,11 @@ fun MainScreen(modifier: Modifier, location : Location){
         }
         Row{
             Text(text = "Blue Line:${blueLine.value.toString()}", modifier = Modifier.fillMaxWidth(0.5f))
-            Text(text = "Blue Inte:{blueIn.value.toString()}")
+            Text(text = "Blue Inte:${blueIn.value.toString()}")
 
         }
 
-    }
+    }}
+
 
 }
