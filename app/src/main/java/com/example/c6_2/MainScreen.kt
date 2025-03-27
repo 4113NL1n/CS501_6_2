@@ -8,12 +8,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,9 +50,14 @@ fun MainScreen(modifier: Modifier, location : Location){
     val defaultLocation = remember { mutableStateOf(LatLng(location.latitude, location.longitude)) }
     val customLocation = remember { mutableStateOf(mutableStateListOf<LatLng>()) }
     val customGonLocation = remember { mutableStateOf(mutableStateListOf<LatLng>()) }
-
-    val polylineColor = remember { mutableStateOf(Color.Blue) }
-    val polygonColor = remember { mutableStateOf(Color.Green) }
+    val redLine  = remember { mutableStateOf(0.0f) }
+    val greenLine    = remember { mutableStateOf(0.0f) }
+    val blueLine = remember { mutableStateOf(0.0f) }
+    val redIn  = remember { mutableStateOf(0.0f) }
+    val greenIn   = remember { mutableStateOf(0.0f) }
+    val blueIn = remember { mutableStateOf(0.0f) }
+    val polylineColor = remember { mutableStateOf(Color(redLine.value,greenLine.value,blueLine.value)) }
+    val polygonColor = remember { mutableStateOf(Color(redIn.value,greenIn.value, blueIn.value)) }
     val polyLineWidth = remember { mutableStateOf(8f) }
 
 
@@ -67,7 +76,9 @@ fun MainScreen(modifier: Modifier, location : Location){
         modifier = modifier.fillMaxHeight()
     ){
         GoogleMap(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.5f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.5f),
             cameraPositionState = cameraPositionState,
             onMapClick = { latLng ->
                 if(isItPolyline.value){
@@ -107,7 +118,124 @@ fun MainScreen(modifier: Modifier, location : Location){
         }) {
             Text(text = "Polyline")
         }
+        Text(text = "Change line size")
+        Slider(
+            value = polyLineWidth.value,
+            onValueChange = {polyLineWidth.value = it },
+            colors = SliderDefaults.colors(
+                thumbColor = MaterialTheme.colorScheme.secondary,
+                activeTrackColor = MaterialTheme.colorScheme.secondary,
+                inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+            ),
+            valueRange = 0f..50f
+        )
+        Text(text = polyLineWidth.value.toString())
 
+        Row {
+            Slider(
+                value = redLine.value,
+                onValueChange = {
+                    redLine.value = it
+                    polylineColor.value = Color(redLine.value/255f, greenLine.value/255f, blueLine.value/255f)
+                },
+                colors = SliderDefaults.colors(
+                    thumbColor = MaterialTheme.colorScheme.secondary,
+                    activeTrackColor = MaterialTheme.colorScheme.secondary,
+                    inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
+                valueRange = 0f..255f,
+                modifier = Modifier.fillMaxWidth(0.5f)
+            )
+            Slider(
+                value = redIn.value,
+                onValueChange = {
+                    redIn.value = it
+                    polygonColor.value = Color(redIn.value/255f, greenIn.value/255f, blueIn.value/255f)
+                },
+                colors = SliderDefaults.colors(
+                    thumbColor = MaterialTheme.colorScheme.secondary,
+                    activeTrackColor = MaterialTheme.colorScheme.secondary,
+                    inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
+                valueRange = 0f..255f
+            )
+
+        }
+        Row(){
+            Text(text = "Red Line:${ redLine.value.toString() }", modifier = Modifier.fillMaxWidth(0.5f))
+            Text(text = "Red Interior:${redIn.value.toString()}")
+
+        }
+        Row {
+            Slider(
+                value = greenLine.value,
+                onValueChange = {
+                    greenLine.value = it
+                    polylineColor.value = Color(redLine.value/255f, greenLine.value/255f, blueLine.value/255f)
+                },
+                colors = SliderDefaults.colors(
+                    thumbColor = MaterialTheme.colorScheme.secondary,
+                    activeTrackColor = MaterialTheme.colorScheme.secondary,
+                    inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
+                valueRange = 0f..255f,
+                modifier = Modifier.fillMaxWidth(0.5f)
+            )
+            Slider(
+                value = greenIn.value,
+                onValueChange = {
+                    greenIn.value = it
+                    polygonColor.value = Color(redIn.value/255f, greenIn.value/255f, blueIn.value/255f)
+                },
+                colors = SliderDefaults.colors(
+                    thumbColor = MaterialTheme.colorScheme.secondary,
+                    activeTrackColor = MaterialTheme.colorScheme.secondary,
+                    inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
+                valueRange = 0f..255f
+            )
+
+        }
+        Row{
+            Text(text = "Green Line:${greenLine.value.toString()}", modifier = Modifier.fillMaxWidth(0.5f))
+            Text(text = "Green Inte:${greenIn.value.toString()}")
+
+        }
+        Row {
+            Slider(
+                value = blueLine.value,
+                onValueChange = {
+                    blueLine.value = it
+                    polylineColor.value = Color(redLine.value/255f, greenLine.value/255f, blueLine.value/255f)
+                },
+                colors = SliderDefaults.colors(
+                    thumbColor = MaterialTheme.colorScheme.secondary,
+                    activeTrackColor = MaterialTheme.colorScheme.secondary,
+                    inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
+                valueRange = 0f..255f,
+                modifier = Modifier.fillMaxWidth(0.5f)
+            )
+            Slider(
+                value = blueIn.value,
+                onValueChange = {
+                    blueIn.value = it
+                    polygonColor.value = Color(redIn.value/255f, greenIn.value/255f, blueIn.value/255f)
+                },
+                colors = SliderDefaults.colors(
+                    thumbColor = MaterialTheme.colorScheme.secondary,
+                    activeTrackColor = MaterialTheme.colorScheme.secondary,
+                    inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
+                valueRange = 0f..255f
+            )
+
+        }
+        Row{
+            Text(text = "Blue Line:${blueLine.value.toString()}", modifier = Modifier.fillMaxWidth(0.5f))
+            Text(text = "Blue Inte:{blueIn.value.toString()}")
+
+        }
 
     }
 
