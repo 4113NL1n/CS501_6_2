@@ -30,6 +30,7 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerInfoWindow
 import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlin.collections.firstOrNull
 import kotlin.collections.forEach
@@ -42,6 +43,11 @@ fun MainScreen(modifier: Modifier, location : Location){
     val defaultLocation = remember { mutableStateOf(LatLng(location.latitude, location.longitude)) }
     val customLocation = remember { mutableListOf<LatLng>() }
     var where = remember { mutableStateOf("Fetching address...") }
+
+    val polylineColor = remember { mutableStateOf(Color.Blue) }
+    val polygonColor = remember { mutableStateOf(Color.Green) }
+    val polyLineWidth = remember { mutableStateOf(8f) }
+
     customLocation.add(defaultLocation.value)
 
     val cameraPositionState = rememberCameraPositionState {
@@ -75,19 +81,12 @@ fun MainScreen(modifier: Modifier, location : Location){
                         .background(Color.Blue)
                         .padding(20.dp)
                 ) {
-                    val lat = latlng.latitude
-                    val long = latlng.longitude
-                    geocode.getFromLocation(lat, long, 1, object : Geocoder.GeocodeListener {
-                        override fun onGeocode(addresses: MutableList<Address>) {
-                            where.value =
-                                addresses.firstOrNull()?.getAddressLine(0) ?: "Address not found"
-                        }
-
-                        fun onError() {
-                            where.value = "Error Occured"
-                        }
-                    })
-                    Text(text = where.value)
+                    Polyline(
+                        points = customLocation,
+                        clickable = true,
+                        color = polylineColor.value,
+                        width =  polyLineWidth.value
+                    )
                 }
             }
         }
