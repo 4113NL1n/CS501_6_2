@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
                     setContent {
                         Scaffold (modifier = Modifier.fillMaxSize()){ innerPadding ->
                             C6_2Theme {
-                                //MainScreen(Modifier.padding(innerPadding), location)
+                                MainScreen(Modifier.padding(innerPadding), location)
                             }
                         }
 
